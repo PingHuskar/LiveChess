@@ -133,6 +133,45 @@
 	</ul>
 
 	<script type="text/javascript">
+		function getplayername(username) {
+			return new Promise ((resolve,reject) => {
+				fetch(`https://api.chess.com/pub/player/${username}`)
+					.then(res => res.json())
+					.then(data => {
+						resolve(data.name)
+					})
+					.catch((e) => {
+					    document.write("Error",e);
+				})
+			})
+		}
+		function getplayerlocation(username) {
+			return new Promise ((resolve,reject) => {
+				fetch(`https://api.chess.com/pub/player/${username}`)
+					.then(res => res.json())
+					.then(data => {
+						resolve(data.location)
+					})
+					.catch((e) => {
+					    document.write("Error",e);
+				})
+			})
+		}
+		function getplayerfollower(username) {
+			return new Promise ((resolve,reject) => {
+				fetch(`https://api.chess.com/pub/player/${username}`)
+					.then(res => res.json())
+					.then(data => {
+						console.log(data)
+						resolve(data.followers)
+					})
+					.catch((e) => {
+					    document.write("Error",e);
+				})
+			})
+		}
+
+
 		fetch("https://api.chess.com/pub/streamers")
 		.then(res => res.json())
 		.then(data => showData(data))
@@ -140,30 +179,39 @@
 		    document.write("Error",e);
 		})
 
-		function showData(data) {
+		async function showData(data) {
 			var array = data['streamers']
 			
 			for (i=0; i<array.length; i++){
 				if (array[i]['is_live']) {
 				var card = document.createElement("div");
+				
 				card.innerHTML = `<li>
 								    <a href="${array[i]['twitch_url']}" target="_blank" class="card">
 								      <img src="${array[i]['avatar']}" class="card__image" alt="${array[i]['username']}" />
 								      <div class="card__overlay">
 								        <div class="card__header">
-								          <svg class="card__arc" xmlns="http://www.w3.org/2000/svg"><path /></svg>
+								          <svg class="card__arc" xmlns="http://www.w3.org/2000/svg"><path /></svg>                     
 								          <img class="card__thumb" src="${array[i]['avatar']}" alt="${array[i]['username']}" />
 								          <div class="card__header-text">
-								            <h3 class="card__title">${array[i]['username']}</h3>
+								            <h3 class="card__title">${array[i]['username']}</h3>            
 								            <span class="card__status"></span>
 								          </div>
 								        </div>
-								        <p class="card__description"></p>
+								        <p class="card__description" id="name_${array[i]['username']}">Fullname : </p>
+								        <p class="card__description" id="lo_${array[i]['username']}">From : </p>
+								        <p class="card__description" id="fol_${array[i]['username']}">#Followers : </p>
 								      </div>
-								    </a>
+								    </a>      
 								  </li>`
 				// card.innerHTML = `<h1>${array[i]['username']}</h1><img src="${array[i]['avatar']}" alt="${array[i]['username']}"><a href="${array[i]['twitch_url']}" target="_blank"><img src="twitch.png"></a>`;
 				document.getElementById("cards").appendChild(card);
+				await getplayername(array[i]['username']).then((data)=> {
+					document.getElementById("name_"+array[i]['username']).innerHTML += data})
+				await getplayerlocation(array[i]['username']).then((data)=> {
+					document.getElementById("lo_"+array[i]['username']).innerHTML += data})
+				await getplayerfollower(array[i]['username']).then((data)=> {
+					document.getElementById("fol_"+array[i]['username']).innerHTML += data})
 			}
 		}
 		}
